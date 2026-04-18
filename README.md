@@ -3,6 +3,11 @@
 > Turn meetings into actionable insights with AI-powered transcription and analysis.
 
 <p align="center">
+  <img src="docs/screenshot1.jpeg" alt="MeetingAI Dashboard" width="800">
+  <img src="docs/screenshot2.jpeg" alt="MeetingAI Results" width="800">
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue?style=flat&logo=python" alt="Python">
   <img src="https://img.shields.io/badge/Flask-3.0+-blue?style=flat&logo=flask" alt="Flask">
   <img src="https://img.shields.io/badge/License-MIT-green?style=flat" alt="License">
