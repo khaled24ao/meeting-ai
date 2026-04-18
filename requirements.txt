@@ -1,0 +1,9 @@
+flask
+flask-cors
+groq
+openai-whisper
+python-dotenv
+pyyaml
+pytest
+pytest-flask
+httpx

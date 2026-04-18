@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeetingAI - Turn meetings into action</title>
+    <style>
+        :root {
+            --bg-primary: #0f0f0f;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #252525;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --border: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1rem;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: var(--text-primary);
+        }
+
+        .tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .file-drop {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            transition: border-color 0.2s;
+        }
+
+        .file-drop:hover {
+            border-color: var(--accent);
+        }
+
+        .file-drop.dragover {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .file-drop input[type="file"] {
+            display: none;
+        }
+
+        .file-drop label {
+            cursor: pointer;
+            color: var(--accent);
+        }
+
+        .file-info {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        textarea::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: block;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .results {
+            display: none;
+        }
+
+        .results.active {
+            display: block;
+        }
+
+        .results h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .result-card {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .result-card h3 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .summary-text {
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .action-item:last-child {
+            border-bottom: none;
+        }
+
+        .action-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+        }
+
+        .action-item label {
+            flex: 1;
+        }
+
+        .decision {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+        }
+
+        .decision-icon {
+            color: var(--success);
+            font-size: 1.2rem;
+        }
+
+        .topic-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin: 0.25rem 0.25rem 0.25rem 0;
+        }
+
+        .duration-stat {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .duration-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .error {
+            display: none;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error);
+            border-radius: 8px;
+            padding: 1rem;
+            color: var(--error);
+            margin-top: 1rem;
+        }
+
+        .error.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MeetingAI</h1>
+            <p class="subtitle">Turn meetings into action</p>
+        </header>
+
+        <div class="card">
+            <div class="tabs">
+                <button class="tab active" data-tab="audio">Upload Audio</button>
+                <button class="tab" data-tab="text">Paste Transcript</button>
+            </div>
+
+            <div id="audio-tab" class="tab-content active">
+                <div class="file-drop" id="file-drop">
+                    <input type="file" id="audio-file" accept=".mp3,.wav,.m4a,.mp4">
+                    <p>Drag & drop audio file or <label for="audio-file">browse</label></p>
+                    <p class="file-info">Supported: mp3, wav, m4a, mp4 (max 25MB)</p>
+                    <p id="file-name" class="file-info"></p>
+                </div>
+            </div>
+
+            <div id="text-tab" class="tab-content">
+                <textarea id="transcript-text" placeholder="Paste your meeting transcript here..."></textarea>
+            </div>
+
+            <button class="btn" id="analyze-btn">Analyze Meeting</button>
+
+            <div class="error" id="error-msg"></div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing meeting...</p>
+        </div>
+
+        <div class="results" id="results">
+            <h2>Analysis Results</h2>
+
+            <div class="result-card">
+                <h3>Summary</h3>
+                <p class="summary-text" id="result-summary"></p>
+            </div>
+
+            <div class="result-card">
+                <h3>Action Items</h3>
+                <div id="result-actions"></div>
+            </div>
+
+            <div class="result-card">
+                <h3>Decisions</h3>
+                <div id="result-decisions"></div>
+            </div>
+
+            <div class="result-card">
+                <h3>Key Topics</h3>
+                <div id="result-topics"></div>
+            </div>
+
+            <div class="result-card">
+                <h3>Duration Estimate</h3>
+                <p class="duration-stat" id="result-duration"></p>
+                <p class="duration-label">Estimated meeting length</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const errorMsg = document.getElementById('error-msg');
+        const audioFileInput = document.getElementById('audio-file');
+        const fileDrop = document.getElementById('file-drop');
+        const fileNameDisplay = document.getElementById('file-name');
+
+        let currentTab = 'audio';
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab + '-tab').classList.add('active');
+                currentTab = tab.dataset.tab;
+                hideError();
+            });
+        });
+
+        fileDrop.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileDrop.classList.add('dragover');
+        });
+
+        fileDrop.addEventListener('dragleave', () => {
+            fileDrop.classList.remove('dragover');
+        });
+
+        fileDrop.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileDrop.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                audioFileInput.files = files;
+                fileNameDisplay.textContent = files[0].name;
+            }
+        });
+
+        audioFileInput.addEventListener('change', () => {
+            if (audioFileInput.files.length > 0) {
+                fileNameDisplay.textContent = audioFileInput.files[0].name;
+            }
+        });
+
+        analyzeBtn.addEventListener('click', async () => {
+            hideError();
+            hideResults();
+
+            const formData = new FormData();
+
+            if (currentTab === 'audio') {
+                if (audioFileInput.files.length === 0) {
+                    showError('Please select an audio file');
+                    return;
+                }
+                formData.append('file', audioFileInput.files[0]);
+            } else {
+                const text = document.getElementById('transcript-text').value.trim();
+                if (!text) {
+                    showError('Please enter a transcript');
+                    return;
+                }
+                formData.append('text', text);
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch('/api/v1/summarize', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+
+                displayResults(data.result);
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                hideLoading();
+            }
+        });
+
+        function displayResults(jsonStr) {
+            let parsed;
+            try {
+                parsed = JSON.parse(jsonStr);
+            } catch {
+                parsed = { summary: jsonStr, action_items: [], decisions: [], key_topics: [], duration_estimate: '' };
+            }
+
+            document.getElementById('result-summary').textContent = parsed.summary || 'No summary available';
+
+            const actionsContainer = document.getElementById('result-actions');
+            actionsContainer.innerHTML = '';
+            if (parsed.action_items && parsed.action_items.length > 0) {
+                parsed.action_items.forEach((item, i) => {
+                    const taskText = item.task || item;
+                    const ownerText = item.owner ? ` (${item.owner})` : '';
+                    const deadlineText = item.deadline ? ` - Due: ${item.deadline}` : '';
+                    const div = document.createElement('div');
+                    div.className = 'action-item';
+                    div.innerHTML = `<input type="checkbox" id="action-${i}"><label for="action-${i}">${taskText}${ownerText}${deadlineText}</label>`;
+                    actionsContainer.appendChild(div);
+                });
+            } else {
+                actionsContainer.innerHTML = '<p style="color: var(--text-secondary)">No action items found</p>';
+            }
+
+            const decisionsContainer = document.getElementById('result-decisions');
+            decisionsContainer.innerHTML = '';
+            if (parsed.decisions && parsed.decisions.length > 0) {
+                parsed.decisions.forEach((decision, i) => {
+                    const decisionText = decision.decision || decision;
+                    const contextText = decision.context ? ` - ${decision.context}` : '';
+                    const div = document.createElement('div');
+                    div.className = 'decision';
+                    div.innerHTML = `<span class="decision-icon">✓</span><span>${decisionText}${contextText}</span>`;
+                    decisionsContainer.appendChild(div);
+                });
+            } else {
+                decisionsContainer.innerHTML = '<p style="color: var(--text-secondary)">No decisions found</p>';
+            }
+
+            const topicsContainer = document.getElementById('result-topics');
+            topicsContainer.innerHTML = '';
+            if (parsed.key_topics && parsed.key_topics.length > 0) {
+                parsed.key_topics.forEach(topic => {
+                    const span = document.createElement('span');
+                    span.className = 'topic-badge';
+                    span.textContent = topic;
+                    topicsContainer.appendChild(span);
+                });
+            } else {
+                topicsContainer.innerHTML = '<p style="color: var(--text-secondary)">No topics found</p>';
+            }
+
+            document.getElementById('result-duration').textContent = parsed.duration_estimate || 'N/A';
+
+            results.classList.add('active');
+        }
+
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.classList.add('active');
+        }
+
+        function hideError() {
+            errorMsg.classList.remove('active');
+        }
+
+        function showLoading() {
+            loading.classList.add('active');
+            analyzeBtn.disabled = true;
+        }
+
+        function hideLoading() {
+            loading.classList.remove('active');
+            analyzeBtn.disabled = false;
+        }
+
+        function hideResults() {
+            results.classList.remove('active');
+        }
+    </script>
+</body>
+</html>
