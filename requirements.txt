@@ -4,6 +4,9 @@ groq
 openai-whisper
 python-dotenv
 pyyaml
+pydantic>=2.0.0
 pytest
 pytest-flask
 httpx
+flask-limiter
+redis

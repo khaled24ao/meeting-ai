@@ -1,198 +1,82 @@
-# MeetingAI
+# MeetingAI 🎙️
 
-> Turn meetings into actionable insights with AI-powered transcription and analysis.
+MeetingAI is a production-ready meeting analysis platform that transforms audio recordings or text transcripts into structured, actionable insights. Using state-of-the-art AI models, it extracts summaries, action items, and key decisions in seconds.
 
-<p align="center">
-  <img src="docs/screenshot1.jpeg" alt="MeetingAI Dashboard" width="800">
-  <img src="docs/screenshot2.jpeg" alt="MeetingAI Results" width="800">
-</p>
+![screenshot](screenshot.png)
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.11+-blue?style=flat&logo=python" alt="Python">
-  <img src="https://img.shields.io/badge/Flask-3.0+-blue?style=flat&logo=flask" alt="Flask">
-  <img src="https://img.shields.io/badge/License-MIT-green?style=flat" alt="License">
-  <img src="https://img.shields.io/badge/Build-Passing-success?style=flat" alt="Build">
-</p>
+## ✨ Features
 
-## Overview
+- 🎙️ **Audio Transcription**: Upload MP3, WAV, M4A, or MP4 files for high-accuracy transcription using OpenAI Whisper.
+- 📝 **Text Analysis**: Paste existing transcripts for instant AI-powered summarization.
+- 📊 **Actionable Insights**: Automatically extracts executive summaries, action items (with owners and deadlines), and key decisions.
+- 🔒 **Enterprise Ready**: Includes API key authentication, rate limiting, and secure file handling.
+- 🚀 **Responsive UI**: Modern, clean dashboard for uploading files and viewing results.
+- 🐳 **Containerized**: Fully Dockerized with multi-stage builds and health checks.
 
-MeetingAI is a professional-grade meeting analysis tool that converts audio recordings or text transcripts into structured, actionable insights using AI.
+## 🛠️ Tech Stack
 
-### Features
+- **Backend**: Python 3.11, Flask
+- **AI Inference**: [Groq API](https://groq.com) (Llama 3.1)
+- **Speech-to-Text**: [OpenAI Whisper](https://github.com/openai/whisper)
+- **Validation**: Pydantic
+- **Security**: Flask-CORS, Secure Headers
+- **DevOps**: Docker, Docker Compose, GitHub Actions
 
-- **Smart Transcription** - Upload audio files (mp3, wav, m4a, mp4) for automatic transcription
-- **Text Analysis** - Paste meeting transcripts directly for instant analysis  
-- **Structured Output** - Extract:
-  - Executive Summary (3-sentence overview)
-  - Action Items (task list with ownership)
-  - Key Decisions Made
-  - Key Topics Discussed
-  - Meeting Duration Estimate
+## 🚀 How to Run (5 Steps)
 
-### Tech Stack
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/khaled24ao/meeting-ai.git
+   cd meeting-ai
+   ```
 
-| Layer | Technology |
-|-------|------------|
-| Backend | Flask 3.0+, Python 3.11+ |
-| AI/ML | Groq API (Llama 3 8B), OpenAI Whisper |
-| Testing | pytest, pytest-cov |
-| DevOps | Docker, GitHub Actions, Nginx |
+2. **Set up virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # Windows: venv\Scripts\activate
+   ```
 
-## Quick Start
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-```bash
-# Clone & setup
-git clone https://github.com/yourusername/meetingai.git
-cd meetingai
+4. **Configure environment**:
+   ```bash
+   cp .env.example .env
+   # Edit .env and add your GROQ_API_KEY and SECRET_KEY
+   ```
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or: venv\Scripts\activate  # Windows
+5. **Start the application**:
+   ```bash
+   python app.py
+   ```
+   Visit **http://localhost:7860** to see the app!
 
-# Install dependencies
-pip install -r requirements.txt
+## 🐳 Docker
 
-# Configure
-cp .env.example .env
-# Edit .env and add your GROQ_API_KEY
-
-# Run
-python app.py
-```
-
-Visit `http://localhost:5000`
-
-## Docker Deployment
+Run the entire stack with a single command:
 
 ```bash
-# Build and run
-docker-compose up -d
-
-# With custom config
-GROQ_API_KEY=your_key docker-compose up -d
+docker-compose up --build
 ```
 
-## Configuration
-
-All settings managed via `config.yaml`:
-
-```yaml
-app:
-  name: MeetingAI
-  debug: false
-  host: 0.0.0.0
-  port: 5000
-
-upload:
-  max_size_mb: 25
-  allowed_extensions: [mp3, mp4, wav, m4a]
-
-transcription:
-  whisper_model: tiny  # tiny/base/small/medium/large
-
-ai:
-  model: llama3-8b-8192
-  temperature: 0.5
-  max_tokens: 1024
-```
-
-## API Reference
-
-### POST /api/v1/summarize
-
-Analyze meeting content.
-
-**Request (multipart/form-data):**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| file | File | Audio file (optional, max 25MB) |
-| text | String | Plain text transcript (optional) |
-
-**Response (200 OK):**
-
-```json
-{
-  "result": "{\"summary\": \"...\", \"action_items\": [...], \"decisions\": [...], \"key_topics\": [...], \"duration_estimate\": \"...\"}",
-  "transcript_length": 1234
-}
-```
-
-**Error Responses:**
-
-```json
-{"error": "No audio file or text provided"}  // 400
-{"error": "Invalid file type. Allowed: mp3, mp4, wav, m4a"}  // 400
-{"error": "File too large. Max 25MB allowed"}  // 400
-{"error": "Transcription failed"}  // 500
-{"error": "Internal server error"}  // 500
-```
-
-## Project Structure
-
-```
-meetingai/
-├── app.py                    # Application entry point
-├── backend/
-│   ├── app.py               # Flask factory
-│   ├── config.py            # Configuration management
-│   ├── exceptions.py        # Custom exceptions
-│   ├── services/
-│   │   ├── ai_service.py    # Groq API integration
-│   │   └── whisper_service.py # Audio transcription
-│   ├── routes/
-│   │   └── summarize.py     # API endpoints
-│   └── utils/
-│       └── logger.py        # Logging utility
-├── tests/                    # Test suite
-│   ├── conftest.py
-│   └── test_routes.py
-├── .github/workflows/       # CI/CD pipeline
-├── templates/
-│   └── index.html           # Frontend UI
-├── storage/
-│   └── uploads/             # File uploads directory
-├── config.yaml              # Application config
-├── docker-compose.yml       # Docker orchestration
-├── Dockerfile               # Container image
-├── requirements.txt         # Python dependencies
-├── pytest.ini               # Test configuration
-└── README.md
-```
-
-## Development
-
-```bash
-# Run tests
-pytest
-
-# Run with coverage
-pytest --cov=backend --cov-report=html
-
-# Lint code
-flake8 backend
-```
-
-## CI/CD Pipeline
-
-The project includes automated CI/CD via GitHub Actions:
-
-- **Test Job**: Runs pytest with coverage reporting
-- **Lint Job**: Code quality checks with flake8
-- **Build**: Docker image build on merge
-
-## Environment Variables
+## ⚙️ Environment Variables
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `GROQ_API_KEY` | Yes | Groq API key for LLM inference |
-| `CONFIG_PATH` | No | Path to config.yaml (default: config.yaml) |
+| `GROQ_API_KEY` | **Yes** | Your Groq API key from [console.groq.com](https://console.groq.com) |
+| `SECRET_KEY` | **Yes** | Random string for Flask session security |
+| `ALLOWED_API_KEYS` | **Yes** | Comma-separated list of keys allowed to access the API |
+| `PORT` | No | Application port (default: 7860) |
+| `DEBUG` | No | Enable debug mode (default: false) |
+| `AI_MODEL` | No | Groq model to use (default: llama-3.1-8b-instant) |
+| `WHISPER_MODEL` | No | Whisper model size: tiny/base/small/medium/large (default: tiny) |
 
-## License
+## 📄 License
 
-MIT License - see [LICENSE](LICENSE) for details.
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-<p align="center">Built with ❤️ using Flask + Groq + Whisper</p>
+**Built with ❤️ for efficient meetings.**
